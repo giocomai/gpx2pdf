@@ -1,0 +1,268 @@
+---
+title: "Titolo"
+author: "Ecomuseo della Valle dei Laghi"
+output:
+  pdf_document:
+    latex_engine: xelatex
+params:
+  track_points_sf: NA
+  tracks_sf: NA
+  title: "Track"
+  url: "https://archiviomemoria.ecomuseovalledeilaghi.it/"
+fontsize: 12pt
+classoption: a4paper
+header-includes:
+  - \usepackage{fontspec}
+  - \setmainfont{Roboto}
+  - \usepackage{secdot}
+  - \renewcommand{\contentsname}{Indice}
+  - \usepackage[italian]{babel}
+  - \hyphenpenalty=10000
+---
+
+---
+title: `r params$title`
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, dev = "cairo_pdf")
+library("tidyverse")
+library("sf")
+library("qrcode")
+library("extrafont")
+#extrafont::loadfonts()
+```
+
+
+
+```{r include=FALSE}
+library("tidyverse")
+library("sf")
+
+
+track_points_sf <- params$track_points_sf
+
+tracks_sf <- params$tracks_sf
+
+
+dist_df <- sf::st_distance(track_points_sf)
+
+
+distance_v <- purrr::map_dbl(.x = 1:(nrow(track_points_sf)-1),
+               .f = function(i) {
+                 sf::st_distance(track_points_sf %>% slice(i),
+                                 track_points_sf %>% slice(i+1))
+               })
+
+gpx_df <- tibble::tibble(distance = c(0, cumsum(distance_v)),
+                         elevation = track_points_sf$ele) 
+
+
+```
+
+
+
+```{r}
+
+library("gt")
+tibble::tibble(Lunghezza = scales::number(x = max(gpx_df$distance),
+                                          accuracy = 0.1,
+                                          scale = 0.001,
+                                          suffix = " km"), 
+               `Altitudine alla partenza` = gpx_df$elevation[1] %>% scales::number(accuracy = 1, suffix = " m"),
+               `Altitudine all'arrivo` = gpx_df$elevation[length(gpx_df$elevation)] %>% scales::number(accuracy = 1, suffix = " m"),
+               `Altitudine massima` = max(gpx_df$elevation) %>% scales::number(accuracy = 1, suffix = " m"),
+               `Altitudine minima` = min(gpx_df$elevation) %>% scales::number(accuracy = 1, suffix = " m"),
+               `Dislivello` = (max(gpx_df$elevation)-min(gpx_df$elevation))  %>% scales::number(accuracy = 1, suffix = " m"), 
+               `Dislivello cumulativo in salita` = diff(gpx_df$elevation) %>% 
+                 ifelse(.>0, yes = ., no = 0) %>% 
+                 sum() %>% 
+                 scales::number(accuracy = 1, suffix = " m"),
+               `Dislivello cumulativo in discesa` = diff(gpx_df$elevation) %>% 
+                 ifelse(.<0, yes = ., no = 0) %>% 
+                 sum() %>% 
+                 scales::number(accuracy = 1, suffix = " m")) %>% 
+  tidyr::pivot_longer(cols = dplyr::everything(), names_to = "x", values_to = "y") %>% 
+  gt::gt()  %>%
+    tab_header(
+      title = md(paste0("**", params$title, "**")), 
+      subtitle = md("*Dati riassuntivi sul percorso*")
+    ) %>% 
+  cols_label(x = "",y = "") %>% 
+  opt_table_font(font = "Roboto Condensed")
+
+
+
+
+
+
+gpx_df %>% 
+  dplyr::distinct(distance, .keep_all = TRUE) %>% 
+  ggplot(mapping = aes(x = distance, y = elevation, ymax = elevation)) +
+  geom_ribbon(fill = "lightgrey", mapping = aes(ymin = c(min(gpx_df$elevation)*0.80)), alpha = 0.6) +
+  geom_line() +
+  scale_x_continuous(name = "", 
+               labels = function(x) scales::number(x = x, accuracy = 1, scale = 0.001, suffix =  " km"))  +
+  scale_y_continuous(name = "", labels = function(x) scales::number(x = x, suffix = " m"),
+                     limits = c(min(gpx_df$elevation)*0.80, max(gpx_df$elevation)*1.10),
+                     expand = expansion(mult = 0, add = 0)
+                     ) +
+  labs(title = params$title, 
+       subtitle = "Profilo altimetrico del percorso", 
+       caption = "Fonte: Archivio della Memoria dell'Ecomuseo della Valle dei Laghi
+       https://archiviomemoria.ecomuseovalledeilaghi.it/") +
+  theme_minimal(base_family = "Roboto Condensed") +
+
+  theme_minimal(base_family = "Roboto Condensed") +
+  theme(panel.background = element_rect(fill = "white", colour = NA), 
+        plot.background = element_rect(fill = "white", colour = NA)) 
+
+labels_df <- gpx_df %>% 
+  dplyr::mutate(point_id = row_number()-1) %>% 
+  dplyr::left_join(y = track_points_sf %>% sf::st_drop_geometry() %>% select(point_id = track_seg_point_id, name), by = "point_id") %>% 
+  tidyr::drop_na() %>% 
+  dplyr::mutate(id = dplyr::row_number())
+
+ggsave(filename = "profilo_altimetrico.png" , width = 7, height = 5)
+
+```
+
+
+\newpage
+
+
+```{r fig.align='center', fig.width=3}
+if (params$url=="") {
+  # do nothing
+} else {
+  qrcode_gen(params$url)
+}
+
+```
+
+
+
+
+
+```{r include = FALSE}
+
+selected_points <- track_points_sf %>% 
+  dplyr::filter(is.na(name)==FALSE) %>% 
+  transmute(name,
+            description = desc,
+            number = row_number()) %>% 
+  transmute(name, 
+            text = stringr::str_c(
+   # "<h2>", number, ". ", name, "</h2>",
+     "\n### ", number, ". ", name, "\n",
+  #  "<img src='", img, "' width = '128'>",
+    "<p>", description, "</p>"
+    ))
+```
+
+
+```{r fig.width=9, fig.height=11,  fig.align="center", message=FALSE, warning=FALSE}
+library("ggplot2")
+library("ggspatial")
+library("sf")
+library("ggrepel")
+
+
+
+route_points_numbered <- selected_points %>% 
+  dplyr::select(name) %>% 
+  dplyr::mutate(number = dplyr::row_number())
+
+
+route_points_coords <- selected_points %>% 
+  sf::st_coordinates() %>% 
+  as.data.frame() %>% 
+  tibble::as_tibble() %>% 
+  dplyr::transmute(lon = X,
+                   lat = Y,
+                   name = route_points_numbered$name,
+                   number = dplyr::row_number())
+
+
+map_osmgrayscale <- ggplot() +
+  #geom_sf(data=route_points_numbered, aes(colour=name)) +
+  #geom_sf(data = route_points_numbered, mapping = aes(fill = number)) +
+  annotation_map_tile(type = "osmgrayscale", zoomin = 1) +
+  geom_sf(data = tracks_sf, colour = "black", size = 3) +
+  geom_sf(data = tracks_sf, colour = "white", size = 2) +
+   geom_label_repel(data = route_points_numbered,
+                    mapping = aes(geometry = geometry,
+                                  label = number),
+                    colour = "black",
+                    fill = "white",
+                    size = 4,
+                    stat = "sf_coordinates",
+                    min.segment.length = 0) +
+  theme_void()
+map_osmgrayscale
+# ggsave(filename = "map_osmgrayscale.png", plot = map_osmgrayscale, width = 16,height = 16)
+
+
+
+```
+
+
+
+```{r}
+
+
+gpx_df %>% 
+  dplyr::distinct(distance, .keep_all = TRUE) %>% 
+  ggplot(mapping = aes(x = distance, y = elevation, ymax = elevation)) +
+  geom_ribbon(fill = "lightgrey", mapping = aes(ymin = c(min(gpx_df$elevation)*0.80)), alpha = 0.6) +
+  geom_line() +
+  scale_x_continuous(name = "", 
+                     labels = function(x) scales::number(x = x, accuracy = 1, scale = 0.001, suffix =  " km"))  +
+  scale_y_continuous(name = "", labels = function(x) scales::number(x = x, suffix = " m"),
+                     limits = c(min(gpx_df$elevation)*0.80, max(gpx_df$elevation)*1.10),
+                     expand = expansion(mult = 0, add = 0)
+  ) +
+  ggrepel::geom_label_repel(data = labels_df,
+                            mapping = aes(x = distance,
+                                          y = elevation,
+                                          label = id),
+                            nudge_y = 30,
+                            min.segment.length = 0.1,
+                            family =  "Roboto Condensed") +
+  labs(title = params$title, 
+       subtitle = "Profilo altimetrico del percorso", 
+       caption = "Fonte: Archivio della Memoria dell'Ecomuseo della Valle dei Laghi
+       https://archiviomemoria.ecomuseovalledeilaghi.it/") +
+  theme_minimal(base_family = "Roboto Condensed") +
+  theme(panel.background = element_rect(fill = "white", colour = NA), 
+        plot.background = element_rect(fill = "white", colour = NA)) 
+
+
+
+# diff(gpx_df$elevation) %>% 
+#   ifelse(.>0, yes = ., no = 0) %>% 
+#   sum()
+# 
+# diff(gpx_df$elevation) %>% 
+#   ifelse(.<0, yes = ., no = 0) %>% 
+#   sum() %>% 
+#  scales::number(accuracy = 1, suffix = " m")
+
+               
+```
+
+
+
+
+```{r results='asis'}
+for (i in seq_along(selected_points$text)) {
+   cat("\n") 
+  cat("\n") 
+  cat(selected_points$text[i])
+   cat("\n") 
+   cat("\n") 
+  
+}
+```
+
+
