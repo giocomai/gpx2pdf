@@ -8,17 +8,20 @@ app_ui <- function(request) {
   tagList(
     # Leave this function for adding external resources
     golem_add_external_resources(),
-    # Your application UI logic 
     fluidPage(
       h1("gpx2pdf"),
       mod_file_input_ui("file_input_ui_1",
                         label = "Carica un file gpx"),
       shiny::textInput(inputId = "track_title",
-                       label = "Inserisci titolo del percorso"),
+                       label = "Inserisci titolo del percorso",
+                       value = "Percorso"),
       shiny::textInput(inputId = "url",
-                       label = "Inserisci link da trasformare in QR"),
+                       label = "Inserisci link da trasformare in QR", 
+                       value = "https://archiviomemoria.ecomuseovalledeilaghi.it/"),
+      shiny::textInput(inputId = "author",
+                       label = "Inserisci autore",
+                       value = "Archivio delle Memoria - Ecomuseo della Valle dei Laghi"),
       mod_download_report_ui("download_report_ui_1")
-
     )
   )
 }

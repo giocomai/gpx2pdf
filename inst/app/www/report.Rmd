@@ -1,6 +1,6 @@
 ---
-title: "Titolo"
-author: "Ecomuseo della Valle dei Laghi"
+title: "Traccia"
+author: "Archivio delle Memoria - Ecomuseo della Valle dei Laghi"
 output:
   pdf_document:
     latex_engine: xelatex
@@ -9,6 +9,7 @@ params:
   tracks_sf: NA
   title: "Track"
   url: "https://archiviomemoria.ecomuseovalledeilaghi.it/"
+  author: "Archivio delle Memoria - Ecomuseo della Valle dei Laghi"
 fontsize: 12pt
 classoption: a4paper
 header-includes:
@@ -22,6 +23,7 @@ header-includes:
 
 ---
 title: `r params$title`
+author: `r params$author`
 ---
 
 ```{r setup, include=FALSE}
@@ -69,8 +71,12 @@ tibble::tibble(Lunghezza = scales::number(x = max(gpx_df$distance),
                                           accuracy = 0.1,
                                           scale = 0.001,
                                           suffix = " km"), 
-               `Altitudine alla partenza` = gpx_df$elevation[1] %>% scales::number(accuracy = 1, suffix = " m"),
-               `Altitudine all'arrivo` = gpx_df$elevation[length(gpx_df$elevation)] %>% scales::number(accuracy = 1, suffix = " m"),
+               `Altitudine alla partenza` = gpx_df$elevation[1] %>%
+                 scales::number(accuracy = 1,
+                                suffix = " m"),
+               `Altitudine all'arrivo` = gpx_df$elevation[length(gpx_df$elevation)] %>%
+                 scales::number(accuracy = 1,
+                                suffix = " m"),
                `Altitudine massima` = max(gpx_df$elevation) %>% scales::number(accuracy = 1, suffix = " m"),
                `Altitudine minima` = min(gpx_df$elevation) %>% scales::number(accuracy = 1, suffix = " m"),
                `Dislivello` = (max(gpx_df$elevation)-min(gpx_df$elevation))  %>% scales::number(accuracy = 1, suffix = " m"), 
@@ -132,9 +138,7 @@ ggsave(filename = "profilo_altimetrico.png" , width = 7, height = 5)
 
 
 ```{r fig.align='center', fig.width=3}
-if (params$url=="") {
-  # do nothing
-} else {
+if (params$url!="") {
   qrcode_gen(params$url)
 }
 

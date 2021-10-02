@@ -11,6 +11,7 @@ app_server <- function( input, output, session ) {
   mod_download_report_server(id = "download_report_ui_1",
                              track_title = input$track_title, 
                              url = input$url,
+                             author = input$author,
                              track_points_sf = list_sf_r$track_points_sf(),
                              tracks_sf = list_sf_r$tracks_sf())
   
