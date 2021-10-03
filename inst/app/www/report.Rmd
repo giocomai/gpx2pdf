@@ -193,7 +193,7 @@ route_points_coords <- selected_points %>%
 map_osmgrayscale <- ggplot() +
   #geom_sf(data=route_points_numbered, aes(colour=name)) +
   #geom_sf(data = route_points_numbered, mapping = aes(fill = number)) +
-  annotation_map_tile(type = "osmgrayscale", zoomin = 1) +
+  annotation_map_tile(type = "osmgrayscale", zoomin = 1, progress = "none", quiet = TRUE) +
   geom_sf(data = tracks_sf, colour = "black", size = 3) +
   geom_sf(data = tracks_sf, colour = "white", size = 2) +
    geom_label_repel(data = route_points_numbered,
@@ -205,9 +205,8 @@ map_osmgrayscale <- ggplot() +
                     stat = "sf_coordinates",
                     min.segment.length = 0) +
   theme_void()
-map_osmgrayscale
-# ggsave(filename = "map_osmgrayscale.png", plot = map_osmgrayscale, width = 16,height = 16)
 
+map_osmgrayscale
 
 
 ```
@@ -242,17 +241,6 @@ gpx_df %>%
   theme_minimal(base_family = "Roboto Condensed") +
   theme(panel.background = element_rect(fill = "white", colour = NA), 
         plot.background = element_rect(fill = "white", colour = NA)) 
-
-
-
-# diff(gpx_df$elevation) %>% 
-#   ifelse(.>0, yes = ., no = 0) %>% 
-#   sum()
-# 
-# diff(gpx_df$elevation) %>% 
-#   ifelse(.<0, yes = ., no = 0) %>% 
-#   sum() %>% 
-#  scales::number(accuracy = 1, suffix = " m")
 
                
 ```

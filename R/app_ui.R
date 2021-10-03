@@ -9,6 +9,8 @@ app_ui <- function(request) {
     # Leave this function for adding external resources
     golem_add_external_resources(),
     fluidPage(
+      waiter::useWaiter(),
+      waiter::waiterOnBusy(),
       h1("gpx2pdf"),
       mod_file_input_ui("file_input_ui_1",
                         label = "Carica un file gpx"),
