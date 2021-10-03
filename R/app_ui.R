@@ -16,13 +16,16 @@ app_ui <- function(request) {
                         label = "Carica un file gpx"),
       shiny::textInput(inputId = "track_title",
                        label = "Inserisci titolo del percorso",
-                       value = "Percorso"),
+                       value = "Percorso",
+                       width = "100%"),
       shiny::textInput(inputId = "url",
                        label = "Inserisci link da trasformare in QR", 
-                       value = "https://archiviomemoria.ecomuseovalledeilaghi.it/"),
+                       value = "https://archiviomemoria.ecomuseovalledeilaghi.it/",
+                       width = "100%"),
       shiny::textInput(inputId = "author",
                        label = "Inserisci autore",
-                       value = "Archivio delle Memoria - Ecomuseo della Valle dei Laghi"),
+                       value = "Archivio delle Memoria - Ecomuseo della Valle dei Laghi",
+                       width = "100%"),
       mod_download_report_ui("download_report_ui_1")
     )
   )
