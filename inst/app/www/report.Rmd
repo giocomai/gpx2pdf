@@ -28,17 +28,22 @@ author: `r params$author`
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, dev = "cairo_pdf")
-library("tidyverse")
+library("dplyr", warn.conflicts = FALSE)
+library("ggplot2")
 library("sf")
 library("qrcode")
 library("extrafont")
+library("ggplot2")
+library("ggspatial")
+library("sf")
+library("ggrepel")
 #extrafont::loadfonts()
 ```
 
 
 
 ```{r include=FALSE}
-library("tidyverse")
+
 library("sf")
 
 
@@ -165,12 +170,9 @@ selected_points <- track_points_sf %>%
 ```
 
 
-```{r fig.width=9, fig.height=11,  fig.align="center", message=FALSE, warning=FALSE}
-library("ggplot2")
-library("ggspatial")
-library("sf")
-library("ggrepel")
 
+
+```{r fig.width=9, fig.height=11,  fig.align="center", message=FALSE, warning=FALSE}
 
 
 route_points_numbered <- selected_points %>% 
