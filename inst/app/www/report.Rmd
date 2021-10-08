@@ -38,6 +38,7 @@ library("ggspatial")
 library("sf")
 library("ggrepel")
 #extrafont::loadfonts()
+
 ```
 
 
@@ -51,20 +52,13 @@ track_points_sf <- params$track_points_sf
 
 tracks_sf <- params$tracks_sf
 
+track_points_sf <- read_track_points(path)
 
-dist_df <- sf::st_distance(track_points_sf)
+tracks_sf <- read_tracks(path)
 
+gpx_df <- create_distance_elevation_df(track_points_sf = track_points_sf)
 
-distance_v <- purrr::map_dbl(.x = 1:(nrow(track_points_sf)-1),
-               .f = function(i) {
-                 sf::st_distance(track_points_sf %>% slice(i),
-                                 track_points_sf %>% slice(i+1))
-               })
-
-gpx_df <- tibble::tibble(distance = c(0, cumsum(distance_v)),
-                         elevation = track_points_sf$ele) 
-
-
+labels_df <- create_labels_df(gpx_df)
 ```
 
 
@@ -105,36 +99,6 @@ tibble::tibble(Lunghezza = scales::number(x = max(gpx_df$distance),
 
 
 
-
-
-gpx_df %>% 
-  dplyr::distinct(distance, .keep_all = TRUE) %>% 
-  ggplot(mapping = aes(x = distance, y = elevation, ymax = elevation)) +
-  geom_ribbon(fill = "lightgrey", mapping = aes(ymin = c(min(gpx_df$elevation)*0.80)), alpha = 0.6) +
-  geom_line() +
-  scale_x_continuous(name = "", 
-               labels = function(x) scales::number(x = x, accuracy = 1, scale = 0.001, suffix =  " km"))  +
-  scale_y_continuous(name = "", labels = function(x) scales::number(x = x, suffix = " m"),
-                     limits = c(min(gpx_df$elevation)*0.80, max(gpx_df$elevation)*1.10),
-                     expand = expansion(mult = 0, add = 0)
-                     ) +
-  labs(title = params$title, 
-       subtitle = "Profilo altimetrico del percorso", 
-       caption = "Fonte: Archivio della Memoria dell'Ecomuseo della Valle dei Laghi
-       https://archiviomemoria.ecomuseovalledeilaghi.it/") +
-  theme_minimal(base_family = "Roboto Condensed") +
-
-  theme_minimal(base_family = "Roboto Condensed") +
-  theme(panel.background = element_rect(fill = "white", colour = NA), 
-        plot.background = element_rect(fill = "white", colour = NA)) 
-
-labels_df <- gpx_df %>% 
-  dplyr::mutate(point_id = row_number()-1) %>% 
-  dplyr::left_join(y = track_points_sf %>% sf::st_drop_geometry() %>% select(point_id = track_seg_point_id, name), by = "point_id") %>% 
-  tidyr::drop_na() %>% 
-  dplyr::mutate(id = dplyr::row_number())
-
-ggsave(filename = "profilo_altimetrico.png" , width = 7, height = 5)
 
 ```
 
@@ -222,10 +186,15 @@ gpx_df %>%
   geom_ribbon(fill = "lightgrey", mapping = aes(ymin = c(min(gpx_df$elevation)*0.80)), alpha = 0.6) +
   geom_line() +
   scale_x_continuous(name = "", 
-                     labels = function(x) scales::number(x = x, accuracy = 1, scale = 0.001, suffix =  " km"))  +
-  scale_y_continuous(name = "", labels = function(x) scales::number(x = x, suffix = " m"),
+                     labels = function(x) scales::number(x = x,
+                                                         accuracy = 1,
+                                                         scale = 0.001,
+                                                         suffix =  " km"))  +
+  scale_y_continuous(name = "", labels = function(x) scales::number(x = x,
+                                                                    suffix = " m"),
                      limits = c(min(gpx_df$elevation)*0.80, max(gpx_df$elevation)*1.10),
-                     expand = expansion(mult = 0, add = 0)
+                     expand = expansion(mult = 0,
+                                        add = 0)
   ) +
   ggrepel::geom_label_repel(data = labels_df,
                             mapping = aes(x = distance,
@@ -259,4 +228,35 @@ for (i in seq_along(selected_points$text)) {
 }
 ```
 
+
+
+```{r profilo altimetrico, eval=FALSE}
+
+
+
+gpx_df %>% 
+  dplyr::distinct(distance, .keep_all = TRUE) %>% 
+  ggplot(mapping = aes(x = distance, y = elevation, ymax = elevation)) +
+  geom_ribbon(fill = "lightgrey", mapping = aes(ymin = c(min(gpx_df$elevation)*0.80)), alpha = 0.6) +
+  geom_line() +
+  scale_x_continuous(name = "", 
+               labels = function(x) scales::number(x = x, accuracy = 1, scale = 0.001, suffix =  " km"))  +
+  scale_y_continuous(name = "", labels = function(x) scales::number(x = x, suffix = " m"),
+                     limits = c(min(gpx_df$elevation)*0.80, max(gpx_df$elevation)*1.10),
+                     expand = expansion(mult = 0, add = 0)
+                     ) +
+  labs(title = params$title, 
+       subtitle = "Profilo altimetrico del percorso", 
+       caption = "Fonte: Archivio della Memoria dell'Ecomuseo della Valle dei Laghi
+       https://archiviomemoria.ecomuseovalledeilaghi.it/") +
+  theme_minimal(base_family = "Roboto Condensed") +
+
+  theme_minimal(base_family = "Roboto Condensed") +
+  theme(panel.background = element_rect(fill = "white", colour = NA), 
+        plot.background = element_rect(fill = "white", colour = NA)) 
+
+
+
+#ggsave(filename = "profilo_altimetrico.png" , width = 7, height = 5)
+```
 

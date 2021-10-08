@@ -30,23 +30,12 @@ mod_file_input_server <- function(id){
     })
     
     track_points_sf <- reactive({
-      if (fs::path_ext(user_file()$name) == "gpx") {
-        sf::st_read(user_file()$datapath,
-                    layer = "track_points")
-      } else {
-        # do nothing
-        warning("File must be a gpx")
-      }
+
+      read_track_points(user_file()$datapath)
     })
     
     tracks_sf <- reactive({
-      if (fs::path_ext(user_file()$name) == "gpx") {
-        sf::st_read(user_file()$datapath,
-                    layer = "tracks")
-      } else {
-        # do nothing
-        warning("File must be a gpx")
-      }
+      read_tracks(user_file()$datapath)
     })
 
     
