@@ -220,7 +220,7 @@ map_osmgrayscale <- ggplot() +
   #geom_sf(data = route_points_numbered, mapping = aes(fill = number)) +
   annotation_map_tile(
     type = params$map_style,
-    zoomin = 1,
+    zoomin = 0,
     progress = "none",
     quiet = TRUE) +
   geom_sf(data = tracks_sf, colour = "black", size = 3) +
