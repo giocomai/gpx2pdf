@@ -24,12 +24,12 @@ create_distance_elevation_df <- function(track_points_sf) {
 #' Create a data frame with distance elevation pairs based on track points
 #'
 #' @param distance_elevation_df A data frame, typically generated with `create_distance_elevation_df()`
-#'
+#' @param track_points_sf An sf object, typically loaded with `read_track_points(path)`
 #' @return A data frame with two columns, distance and elevation.
 #' @export
 #'
 #' @examples
-create_labels_df <- function(distance_elevation_df) {
+create_labels_df <- function(distance_elevation_df, track_points_sf) {
   distance_elevation_df %>% 
     dplyr::mutate(point_id = row_number()-1) %>% 
     dplyr::left_join(y = track_points_sf %>%

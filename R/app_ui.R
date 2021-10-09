@@ -26,7 +26,8 @@ app_ui <- function(request) {
                        label = "Inserisci autore",
                        value = "Archivio delle Memoria - Ecomuseo della Valle dei Laghi",
                        width = "100%"),
-      mod_download_report_ui("download_report_ui_1")
+      mod_download_report_ui("download_report_ui_1"),
+      mod_download_miniature_ui("download_miniature_ui_1")
     )
   )
 }

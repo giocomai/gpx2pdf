@@ -27,7 +27,9 @@ author: `r params$author`
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, dev = "cairo_pdf")
+knitr::opts_chunk$set(echo = FALSE,
+                      dev = "cairo_pdf")
+
 library("dplyr", warn.conflicts = FALSE)
 library("ggplot2")
 library("sf")
@@ -43,7 +45,7 @@ library("ggrepel")
 
 
 
-```{r include=FALSE}
+```{r include=TRUE}
 
 library("sf")
 
@@ -52,14 +54,24 @@ track_points_sf <- params$track_points_sf
 
 tracks_sf <- params$tracks_sf
 
-track_points_sf <- read_track_points(path)
+# track_points_sf <- read_track_points(path)
+# 
+# tracks_sf <- read_tracks(path)
 
-tracks_sf <- read_tracks(path)
+```
 
+```{r}
 gpx_df <- create_distance_elevation_df(track_points_sf = track_points_sf)
 
-labels_df <- create_labels_df(gpx_df)
 ```
+
+
+```{r}
+
+labels_df <- create_labels_df(distance_elevation_df = gpx_df,
+                              track_points_sf = track_points_sf)
+```
+
 
 
 
@@ -157,7 +169,10 @@ route_points_coords <- selected_points %>%
 map_osmgrayscale <- ggplot() +
   #geom_sf(data=route_points_numbered, aes(colour=name)) +
   #geom_sf(data = route_points_numbered, mapping = aes(fill = number)) +
-  annotation_map_tile(type = "osmgrayscale", zoomin = 1, progress = "none", quiet = TRUE) +
+  annotation_map_tile(type = "osmgrayscale",
+                      zoomin = 0,
+                      progress = "none",
+                      quiet = TRUE) +
   geom_sf(data = tracks_sf, colour = "black", size = 3) +
   geom_sf(data = tracks_sf, colour = "white", size = 2) +
    geom_label_repel(data = route_points_numbered,

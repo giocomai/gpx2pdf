@@ -15,4 +15,9 @@ app_server <- function( input, output, session ) {
                              track_points_sf = list_sf_r$track_points_sf(),
                              tracks_sf = list_sf_r$tracks_sf())
   
+  
+  mod_download_miniature_server(id = "download_miniature_ui_1", 
+                                track_points_sf = list_sf_r$track_points_sf(),
+                                tracks_sf = list_sf_r$tracks_sf())
+  
 }
