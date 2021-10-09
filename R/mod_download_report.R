@@ -23,13 +23,16 @@ mod_download_report_server <- function(id,
                                        url,
                                        author,
                                        track_points_sf,
-                                       tracks_sf){
+                                       tracks_sf, 
+                                       map_style){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
     output$report <- downloadHandler(
       
-      filename = "report.pdf",
+      filename = stringr::str_c("report-",
+                                stringi::stri_rand_strings(n = 1, length = 12),
+                                ".pdf"),
       content = function(file) {
         tempReport <- file.path(tempdir(),
                                 "report.Rmd")
@@ -37,7 +40,7 @@ mod_download_report_server <- function(id,
                   tempReport,
                   overwrite = TRUE)
         
-        if(track_title=="") {
+        if (track_title=="") {
           track_title <- "Track"
         }
         
@@ -45,7 +48,8 @@ mod_download_report_server <- function(id,
                        tracks_sf = tracks_sf, 
                        title = track_title,
                        url = url,
-                       author = author)
+                       author = author, 
+                       map_style = map_style)
         
         rmarkdown::render(tempReport,
                           output_file = file,

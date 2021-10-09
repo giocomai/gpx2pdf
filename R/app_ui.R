@@ -26,6 +26,10 @@ app_ui <- function(request) {
                        label = "Inserisci autore",
                        value = "Archivio delle Memoria - Ecomuseo della Valle dei Laghi",
                        width = "100%"),
+      shiny::selectInput(inputId = "map_style",
+                       label = "Seleziona tipo di mappa",
+                       choices = list(`Bianco e nero` = "osmgrayscale", 
+                                      `OpenStreetMap classica` = "osm")),
       mod_download_report_ui("download_report_ui_1"),
       mod_download_miniature_ui("download_miniature_ui_1")
     )

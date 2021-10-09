@@ -1,5 +1,5 @@
 ---
-title: "Traccia"
+title: "\vspace{-1.5cm}Traccia"
 author: "Archivio delle Memoria - Ecomuseo della Valle dei Laghi"
 output:
   pdf_document:
@@ -10,8 +10,10 @@ params:
   title: "Track"
   url: "https://archiviomemoria.ecomuseovalledeilaghi.it/"
   author: "Archivio delle Memoria - Ecomuseo della Valle dei Laghi"
+  map_style: osmgrayscale
 fontsize: 12pt
 classoption: a4paper
+geometry: margin=2cm
 header-includes:
   - \usepackage{fontspec}
   - \setmainfont{Roboto}
@@ -22,7 +24,7 @@ header-includes:
 ---
 
 ---
-title: `r params$title`
+title: `r paste0("\\vspace{-1.5cm}", params$title)`
 author: `r params$author`
 ---
 
@@ -75,6 +77,14 @@ labels_df <- create_labels_df(distance_elevation_df = gpx_df,
 
 
 
+```{r qrcode, fig.align='center', fig.width=2}
+if (params$url!="") {
+  qrcode_gen(params$url)
+}
+
+```
+
+
 
 ```{r}
 
@@ -103,8 +113,8 @@ tibble::tibble(Lunghezza = scales::number(x = max(gpx_df$distance),
   tidyr::pivot_longer(cols = dplyr::everything(), names_to = "x", values_to = "y") %>% 
   gt::gt()  %>%
     tab_header(
-      title = md(paste0("**", params$title, "**")), 
-      subtitle = md("*Dati riassuntivi sul percorso*")
+    #  title = md(paste0("**", params$title, "**")), 
+      title = md("*Dati riassuntivi sul percorso*")
     ) %>% 
   cols_label(x = "",y = "") %>% 
   opt_table_font(font = "Roboto Condensed")
@@ -116,17 +126,54 @@ tibble::tibble(Lunghezza = scales::number(x = max(gpx_df$distance),
 ```
 
 
-\newpage
 
 
-```{r fig.align='center', fig.width=3}
-if (params$url!="") {
-  qrcode_gen(params$url)
-}
+```{r profilo altimetrico con punti}
 
+
+gpx_df %>% 
+  dplyr::distinct(distance, .keep_all = TRUE) %>% 
+  ggplot(mapping = aes(x = distance, y = elevation, ymax = elevation)) +
+  geom_ribbon(fill = "lightgrey",
+              mapping = aes(ymin = c(min(gpx_df$elevation)*0.85)),
+              alpha = 0.6) +
+  geom_line() +
+  scale_x_continuous(name = "", 
+                     labels = function(x) scales::number(x = x,
+                                                         accuracy = 0.1,
+                                                         scale = 0.001,
+                                                         suffix =  " km"))  +
+  scale_y_continuous(name = "", labels = function(x) scales::number(x = x,
+                                                                    suffix = " m"),
+                     limits = c(min(gpx_df$elevation)*0.85, max(gpx_df$elevation)*1.10),
+                     expand = expansion(mult = 0,
+                                        add = 0)
+  ) +
+  ggrepel::geom_label_repel(data = labels_df,
+                            mapping = aes(x = distance,
+                                          y = elevation,
+                                          label = id),
+                            nudge_y = 30,
+                            min.segment.length = 0.1,
+                            family =  "Roboto Condensed") +
+  labs(#title = params$title, 
+       title = "Profilo altimetrico del percorso"
+       # , 
+       # caption = "Fonte: Archivio della Memoria dell'Ecomuseo della Valle dei Laghi
+       # https://archiviomemoria.ecomuseovalledeilaghi.it/"
+       ) +
+  theme_minimal(base_family = "Roboto Condensed") +
+  theme(panel.background = element_rect(fill = "white", colour = NA), 
+        plot.background = element_rect(fill = "white", colour = NA)) 
+
+               
 ```
 
 
+```{r results="asis"}
+
+cat(paste0("[", params$url, "](", params$url, ")"))
+```
 
 
 
@@ -134,10 +181,11 @@ if (params$url!="") {
 
 selected_points <- track_points_sf %>% 
   dplyr::filter(is.na(name)==FALSE) %>% 
-  transmute(name,
+  dplyr::transmute(name,
             description = desc,
             number = row_number()) %>% 
-  transmute(name, 
+  dplyr::mutate(description = ifelse(is.na(description), "", description)) %>% 
+  dplyr::transmute(name, 
             text = stringr::str_c(
    # "<h2>", number, ". ", name, "</h2>",
      "\n### ", number, ". ", name, "\n",
@@ -170,10 +218,11 @@ route_points_coords <- selected_points %>%
 map_osmgrayscale <- ggplot() +
   #geom_sf(data=route_points_numbered, aes(colour=name)) +
   #geom_sf(data = route_points_numbered, mapping = aes(fill = number)) +
-  annotation_map_tile(type = "osmgrayscale",
-                      zoomin = 0,
-                      progress = "none",
-                      quiet = TRUE) +
+  annotation_map_tile(
+    type = params$map_style,
+    zoomin = 1,
+    progress = "none",
+    quiet = TRUE) +
   geom_sf(data = tracks_sf, colour = "black", size = 3) +
   geom_sf(data = tracks_sf, colour = "white", size = 2) +
    geom_label_repel(data = route_points_numbered,
@@ -184,7 +233,8 @@ map_osmgrayscale <- ggplot() +
                     size = 4,
                     stat = "sf_coordinates",
                     min.segment.length = 0) +
-  theme_void()
+  theme_void() +
+  ggplot2::labs(caption = "© OpenStreetMap contributors")
 
 map_osmgrayscale
 
@@ -193,42 +243,6 @@ map_osmgrayscale
 
 
 
-```{r}
-
-
-gpx_df %>% 
-  dplyr::distinct(distance, .keep_all = TRUE) %>% 
-  ggplot(mapping = aes(x = distance, y = elevation, ymax = elevation)) +
-  geom_ribbon(fill = "lightgrey", mapping = aes(ymin = c(min(gpx_df$elevation)*0.80)), alpha = 0.6) +
-  geom_line() +
-  scale_x_continuous(name = "", 
-                     labels = function(x) scales::number(x = x,
-                                                         accuracy = 1,
-                                                         scale = 0.001,
-                                                         suffix =  " km"))  +
-  scale_y_continuous(name = "", labels = function(x) scales::number(x = x,
-                                                                    suffix = " m"),
-                     limits = c(min(gpx_df$elevation)*0.80, max(gpx_df$elevation)*1.10),
-                     expand = expansion(mult = 0,
-                                        add = 0)
-  ) +
-  ggrepel::geom_label_repel(data = labels_df,
-                            mapping = aes(x = distance,
-                                          y = elevation,
-                                          label = id),
-                            nudge_y = 30,
-                            min.segment.length = 0.1,
-                            family =  "Roboto Condensed") +
-  labs(title = params$title, 
-       subtitle = "Profilo altimetrico del percorso", 
-       caption = "Fonte: Archivio della Memoria dell'Ecomuseo della Valle dei Laghi
-       https://archiviomemoria.ecomuseovalledeilaghi.it/") +
-  theme_minimal(base_family = "Roboto Condensed") +
-  theme(panel.background = element_rect(fill = "white", colour = NA), 
-        plot.background = element_rect(fill = "white", colour = NA)) 
-
-               
-```
 
 
 
@@ -253,12 +267,18 @@ for (i in seq_along(selected_points$text)) {
 gpx_df %>% 
   dplyr::distinct(distance, .keep_all = TRUE) %>% 
   ggplot(mapping = aes(x = distance, y = elevation, ymax = elevation)) +
-  geom_ribbon(fill = "lightgrey", mapping = aes(ymin = c(min(gpx_df$elevation)*0.80)), alpha = 0.6) +
+  geom_ribbon(fill = "lightgrey", 
+              mapping = aes(ymin = c(min(gpx_df$elevation)*0.80)), alpha = 0.6) +
   geom_line() +
   scale_x_continuous(name = "", 
-               labels = function(x) scales::number(x = x, accuracy = 1, scale = 0.001, suffix =  " km"))  +
-  scale_y_continuous(name = "", labels = function(x) scales::number(x = x, suffix = " m"),
-                     limits = c(min(gpx_df$elevation)*0.80, max(gpx_df$elevation)*1.10),
+               labels = function(x) scales::number(x = x,
+                                                   accuracy = 1,
+                                                   scale = 0.001,
+                                                   suffix =  " km"))  +
+  scale_y_continuous(name = "", labels = function(x) scales::number(x = x,
+                                                                    suffix = " m"),
+                     limits = c(min(gpx_df$elevation)*0.80,
+                                max(gpx_df$elevation)*1.10),
                      expand = expansion(mult = 0, add = 0)
                      ) +
   labs(title = params$title, 

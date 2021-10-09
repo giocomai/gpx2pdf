@@ -4,10 +4,12 @@
 \alias{create_labels_df}
 \title{Create a data frame with distance elevation pairs based on track points}
 \usage{
-create_labels_df(distance_elevation_df)
+create_labels_df(distance_elevation_df, track_points_sf)
 }
 \arguments{
 \item{distance_elevation_df}{A data frame, typically generated with `create_distance_elevation_df()`}
+
+\item{track_points_sf}{An sf object, typically loaded with `read_track_points(path)`}
 }
 \value{
 A data frame with two columns, distance and elevation.
