@@ -19,12 +19,12 @@ Imports:
     htmltools,
     jsonlite,
     magrittr,
-    qrcode,
     rmarkdown,
     sf,
     shiny (>= 1.7.0),
     tibble,
-    waiter
+    waiter,
+    qrencoder
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.2

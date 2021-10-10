@@ -62,6 +62,31 @@ tracks_sf <- params$tracks_sf
 
 ```
 
+
+
+```{r qrcode, fig.align='center', fig.width=1.6, fig.height = 1.6, eval=TRUE}
+if (params$url!="") {
+
+qrencoder::qrencode_df(to_encode = params$url) %>% 
+  ggplot2::ggplot(mapping = ggplot2::aes(x = x,
+                       y = y,
+                       fill = as.character(z))) +
+  ggplot2::geom_tile() +
+  ggplot2::scale_fill_manual(values = c("black", "white")) +
+  ggplot2::theme_void() +
+  ggplot2::theme(legend.position = "none")
+
+
+}
+
+
+```
+
+
+
+
+
+
 ```{r}
 gpx_df <- create_distance_elevation_df(track_points_sf = track_points_sf)
 
@@ -75,13 +100,6 @@ labels_df <- create_labels_df(distance_elevation_df = gpx_df,
 ```
 
 
-
-```{r qrcode, fig.align='center', fig.width=2}
-if (params$url!="") {
-  qrcode_gen(params$url)
-}
-
-```
 
 
 
@@ -123,6 +141,7 @@ tibble::tibble(Lunghezza = scales::number(x = max(gpx_df$distance),
 
 
 ```
+
 
 
 
@@ -295,4 +314,8 @@ gpx_df %>%
 
 #ggsave(filename = "profilo_altimetrico.png" , width = 7, height = 5)
 ```
+
+
+
+
 
