@@ -1,5 +1,5 @@
 ---
-title: "\vspace{-1.5cm}Traccia"
+title: "Traccia"
 author: "Archivio delle Memoria - Ecomuseo della Valle dei Laghi"
 output:
   pdf_document:
@@ -13,7 +13,6 @@ params:
   map_style: osmgrayscale
 fontsize: 12pt
 classoption: a4paper
-geometry: margin=2cm
 header-includes:
   - \usepackage{fontspec}
   - \setmainfont{Roboto}
@@ -24,7 +23,7 @@ header-includes:
 ---
 
 ---
-title: `r paste0("\\vspace{-1.5cm}", params$title)`
+title: `r paste0(params$title)`
 author: `r params$author`
 ---
 
@@ -128,7 +127,7 @@ tibble::tibble(Lunghezza = scales::number(x = max(gpx_df$distance),
 
 
 
-```{r profilo altimetrico con punti}
+```{r profilo altimetrico con punti, fig.width=7, fig.height=3.5, fig.align="center"}
 
 
 gpx_df %>% 
@@ -174,6 +173,7 @@ gpx_df %>%
 
 cat(paste0("[", params$url, "](", params$url, ")"))
 ```
+
 
 
 
