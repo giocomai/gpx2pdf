@@ -19,7 +19,8 @@ create_miniature <- function(track_points_sf,
     ggplot2::labs(title = title) +
     ggplot2::theme(plot.title = ggplot2::element_text(family = font_family,
                                                       hjust = 0.5,
-                                                      face = "bold"))
+                                                      face = "bold",
+                                                      size = 8))
   # ggsave(width = 360, height = 360, units = "px", filename = "miniature.png")
   
 }

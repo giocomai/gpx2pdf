@@ -24,7 +24,9 @@ Imports:
     shiny (>= 1.7.0),
     tibble,
     waiter,
-    qrencoder
+    qrencoder,
+    knitr,
+    terra
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.2
