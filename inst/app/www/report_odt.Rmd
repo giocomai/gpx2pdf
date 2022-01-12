@@ -1,21 +1,22 @@
 ---
-title: "Traccia"
-author: "Archivio delle Memoria - Ecomuseo della Valle dei Laghi"
 output:
   odt_document
 params:
   track_points_sf: NA
   tracks_sf: NA
-  title: "Track"
+  track_title: "Track"
   url: "https://archiviomemoria.ecomuseovalledeilaghi.it/"
   author: "Archivio delle Memoria - Ecomuseo della Valle dei Laghi"
+  date: "2022"
   map_style: osmgrayscale
-title: "Traccia"
-author: "Archivio delle Memoria - Ecomuseo della Valle dei Laghi"
+title: "`r params$track_title`"
+author: "`r params$author`"
+date: "`r params$date`"
 fontsize: 12pt
 classoption: a4paper
 header-includes:
   - \usepackage{fontspec}
+  - \usepackage{geometry}
   - \setmainfont{Roboto}
   - \usepackage{secdot}
   - \renewcommand{\contentsname}{Indice}
@@ -24,12 +25,14 @@ header-includes:
 ---
 
 ---
-title: `r params$title`
+title: `r params$track_title`
 author: `r params$author`
+date: `r params$date`
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE)
 
 library("dplyr", warn.conflicts = FALSE)
 library("ggplot2")
@@ -124,7 +127,7 @@ tibble::tibble(Lunghezza = scales::number(x = max(gpx_df$distance),
   tidyr::pivot_longer(cols = dplyr::everything(), names_to = "x", values_to = "y") %>% 
   gt::gt()  %>%
     tab_header(
-    #  title = md(paste0("**", params$title, "**")), 
+    #  title = md(paste0("**", params$track_title, "**")), 
       title = md("*Dati riassuntivi sul percorso*")
     ) %>% 
   cols_label(x = "",y = "") %>% 
@@ -167,7 +170,7 @@ gpx_df %>%
                             nudge_y = 30,
                             min.segment.length = 0.1,
                             family =  "Roboto Condensed") +
-  labs(#title = params$title, 
+  labs(#title = params$track_title, 
        title = "Profilo altimetrico del percorso"
        # , 
        # caption = "Fonte: Archivio della Memoria dell'Ecomuseo della Valle dei Laghi
@@ -293,7 +296,7 @@ gpx_df %>%
                                 max(gpx_df$elevation)*1.10),
                      expand = expansion(mult = 0, add = 0)
                      ) +
-  labs(title = params$title, 
+  labs(title = params$track_title, 
        subtitle = "Profilo altimetrico del percorso", 
        caption = "Fonte: Archivio della Memoria dell'Ecomuseo della Valle dei Laghi
        https://archiviomemoria.ecomuseovalledeilaghi.it/") +

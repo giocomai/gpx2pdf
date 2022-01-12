@@ -19,15 +19,16 @@ mod_download_report_odt_ui <- function(id){
 #'
 #' @noRd 
 mod_download_report_odt_server <- function(id,
-                                       track_title,
-                                       url,
-                                       author,
-                                       track_points_sf,
-                                       tracks_sf, 
-                                       map_style,
-                                       file_name = stringr::str_c("report-",
-                                                      stringi::stri_rand_strings(n = 1, length = 12),
-                                                      ".odt")){
+                                           track_title,
+                                           url,
+                                           author,
+                                           date,
+                                           track_points_sf,
+                                           tracks_sf, 
+                                           map_style,
+                                           file_name = stringr::str_c("report-",
+                                                                      stringi::stri_rand_strings(n = 1, length = 12),
+                                                                      ".odt")){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
@@ -47,9 +48,10 @@ mod_download_report_odt_server <- function(id,
         
         params <- list(track_points_sf = track_points_sf,
                        tracks_sf = tracks_sf, 
-                       title = track_title,
+                       track_title = track_title,
                        url = url,
                        author = author, 
+                       date = date,
                        map_style = map_style)
         
         rmarkdown::render(tempReport,

@@ -8,10 +8,10 @@ params:
   track_title: "Track"
   url: "https://archiviomemoria.ecomuseovalledeilaghi.it/"
   author: "Archivio delle Memoria - Ecomuseo della Valle dei Laghi"
-  date: "2021"
+  date: "2022"
   map_style: osmgrayscale
 title: "`r params$track_title`"
-author: "Archivio delle Memoria - Ecomuseo della Valle dei Laghi"
+author: "`r params$author`"
 date: "`r params$date`"
 fontsize: 12pt
 classoption: a4paper
@@ -33,7 +33,8 @@ date: `r params$date`
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
-                      dev = "cairo_pdf")
+                      dev = "cairo_pdf",
+                      warning = FALSE)
 
 library("dplyr", warn.conflicts = FALSE)
 library("ggplot2")
@@ -141,7 +142,8 @@ tibble::tibble(Lunghezza = scales::number(x = max(gpx_df$distance),
     #  title = md(paste0("**", params$title, "**")), 
       title = md("*Dati riassuntivi sul percorso*")
     ) %>% 
-  cols_label(x = "",y = "") %>% 
+  cols_label(x = "",y = "") %>%
+  gt::tab_options(column_labels.hidden = TRUE) %>% 
   opt_table_font(font = "Roboto Condensed")
 
 
@@ -154,7 +156,7 @@ tibble::tibble(Lunghezza = scales::number(x = max(gpx_df$distance),
 
 
 
-```{r profilo altimetrico con punti, fig.width=7, fig.height=3.5, fig.align="center"}
+```{r profilo altimetrico con punti, fig.width=8, fig.height=3.5, fig.align="center"}
 
 
 gpx_df %>% 
@@ -190,7 +192,8 @@ gpx_df %>%
        ) +
   theme_minimal(base_family = "Roboto Condensed") +
   theme(panel.background = element_rect(fill = "white", colour = NA), 
-        plot.background = element_rect(fill = "white", colour = NA)) 
+        plot.background = element_rect(fill = "white", colour = NA),
+        plot.title = ggplot2::element_text(size = 16)) 
 
                
 ```

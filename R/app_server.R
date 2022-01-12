@@ -22,6 +22,7 @@ app_server <- function( input, output, session ) {
                                  track_title = input$track_title, 
                                  url = input$url,
                                  author = input$author,
+                                 date = input$date, 
                                  track_points_sf = list_sf_r$track_points_sf(),
                                  tracks_sf = list_sf_r$tracks_sf(), 
                                  map_style = input$map_style)

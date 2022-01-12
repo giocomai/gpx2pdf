@@ -28,7 +28,7 @@ app_ui <- function(request) {
                        width = "100%"),
       shiny::textInput(inputId = "date",
                        label = "Inserisci data",
-                       value = "2021"),
+                       value = Sys.Date() %>% stringr::str_extract(pattern = "[[:digit:]]+") %>% as.integer()),
       shiny::selectInput(inputId = "map_style",
                        label = "Seleziona tipo di mappa",
                        choices = list(`Bianco e nero` = "osmgrayscale", 
