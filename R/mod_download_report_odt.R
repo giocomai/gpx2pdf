@@ -27,8 +27,9 @@ mod_download_report_odt_server <- function(id,
                                            tracks_sf, 
                                            map_style,
                                            file_name = stringr::str_c("report-",
-                                                                      stringi::stri_rand_strings(n = 1, length = 12),
-                                                                      ".odt")){
+                                                                      as.character(as.integer(Sys.time())),
+                                                                      ".odt"),
+                                           api_key){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
@@ -52,7 +53,8 @@ mod_download_report_odt_server <- function(id,
                        url = url,
                        author = author, 
                        date = date,
-                       map_style = map_style)
+                       map_style = map_style, 
+                       api_key = api_key)
         
         rmarkdown::render(tempReport,
                           output_file = file,

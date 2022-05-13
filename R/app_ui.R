@@ -31,8 +31,9 @@ app_ui <- function(request) {
                        value = Sys.Date() %>% stringr::str_extract(pattern = "[[:digit:]]+") %>% as.integer()),
       shiny::selectInput(inputId = "map_style",
                        label = "Seleziona tipo di mappa",
-                       choices = list(`Bianco e nero` = "osmgrayscale", 
-                                      `OpenStreetMap classica` = "osm")),
+                       choices = c(rosm::osm.types(),
+                                   "OpenTopoMap",
+                                   "Thunderforest_outdoor_API")),
       mod_download_report_ui("download_report_ui_1"),
       mod_download_report_odt_ui("download_report_odt_ui_1"),
       mod_download_miniature_ui("download_miniature_ui_1")

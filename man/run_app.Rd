@@ -5,6 +5,7 @@
 \title{Run the Shiny Application}
 \usage{
 run_app(
+  api_key = "",
   onStart = NULL,
   options = list(),
   enableBookmarking = NULL,

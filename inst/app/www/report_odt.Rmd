@@ -9,6 +9,7 @@ params:
   author: "Archivio delle Memoria - Ecomuseo della Valle dei Laghi"
   date: "2022"
   map_style: osmgrayscale
+  api_key: ""
 title: "`r params$track_title`"
 author: "`r params$author`"
 date: "`r params$date`"
@@ -62,6 +63,24 @@ tracks_sf <- params$tracks_sf
 # 
 # tracks_sf <- read_tracks(path)
 
+register_tile_source(Thunderforest_outdoor_API = source_from_url_format(
+  url_format = stringr::str_c(c('http://a.tile.thunderforest.com/outdoors/${z}/${x}/${y}.png?apikey=',
+                 'http://b.tile.thunderforest.com/outdoors/${z}/${x}/${y}.png?apikey=',
+                 'http://c.tile.thunderforest.com/outdoors/${z}/${x}/${y}.png?apikey='),
+                 api_key),
+  attribution = "More on Thunderforest at http://www.thunderforest.com/",
+  extension = "png"
+))
+
+register_tile_source(OpenTopoMap = source_from_url_format(
+  url_format = stringr::str_c(c('http://a.tile.opentopomap.org/${z}/${x}/${y}.png',
+                 'http://b.tile.opentopomap.org/${z}/${x}/${y}.png',
+                 'http://c.tile.opentopomap.org/${z}/${x}/${y}.png'),
+                 api_key),
+  attribution = "opentopomap.org CC-BY-SA",
+  extension = "png"
+))
+
 ```
 
 ```{r}
@@ -80,18 +99,25 @@ labels_df <- create_labels_df(distance_elevation_df = gpx_df,
 
 ```{r qrcode, fig.align='center', fig.width=1.6, fig.height = 1.6, eval=TRUE}
 if (params$url!="") {
-
-qrencoder::qrencode_df(to_encode = params$url) %>% 
-  ggplot2::ggplot(mapping = ggplot2::aes(x = x,
+ qrencoder::qrencode(to_encode = params$url) %>% 
+   as.data.frame() %>% 
+   dplyr::mutate(y = row_number()) %>% 
+   tidyr::pivot_longer(cols = dplyr::contains("V"),
+                       names_to = "x",
+                       values_to = "z") %>% 
+   dplyr::mutate(x = stringr::str_remove(string = x,
+                                         "V") %>%
+                   as.numeric()) %>% 
+   ggplot2::ggplot(mapping = ggplot2::aes(x = x,
                        y = y,
                        fill = as.character(z))) +
   ggplot2::geom_tile() +
-  ggplot2::scale_fill_manual(values = c("black", "white")) +
+  ggplot2::scale_fill_manual(values = c("white","black")) +
   ggplot2::theme_void() +
   ggplot2::theme(legend.position = "none")
-
-
 }
+
+
 
 
 ```
@@ -213,6 +239,13 @@ selected_points <- track_points_sf %>%
 
 
 ```{r fig.width=9, fig.height=11,  fig.align="center", message=FALSE, warning=FALSE}
+if (params$map_style=="Thunderforest_outdoor_API") {
+  caption_text <- "Maps © www.thunderforest.com, Data © www.osm.org/copyright"
+} else if (params$map_style=="OpenTopoMap") {
+   caption_text <- "Maps © opentopomap.org (CC-BY-SA), Data © www.osm.org/copyright"
+} else {
+  caption_text <- "© OpenStreetMap contributors"
+}
 
 
 route_points_numbered <- selected_points %>% 
@@ -249,7 +282,7 @@ map_osmgrayscale <- ggplot() +
                     stat = "sf_coordinates",
                     min.segment.length = 0) +
   theme_void() +
-  ggplot2::labs(caption = "© OpenStreetMap contributors")
+  ggplot2::labs(caption = caption_text)
 
 map_osmgrayscale
 

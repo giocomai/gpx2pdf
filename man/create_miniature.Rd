@@ -16,9 +16,6 @@ create_miniature(
 
 \item{tracks_sf}{}
 }
-\value{
-
-}
 \description{
 Create miniature preview of the track
 }

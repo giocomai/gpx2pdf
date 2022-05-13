@@ -16,7 +16,8 @@ app_server <- function( input, output, session ) {
                              date = input$date, 
                              track_points_sf = list_sf_r$track_points_sf(),
                              tracks_sf = list_sf_r$tracks_sf(), 
-                             map_style = input$map_style)
+                             map_style = input$map_style,
+                             api_key = golem::get_golem_options("api_key"))
   
   mod_download_report_odt_server("download_report_odt_ui_1",
                                  track_title = input$track_title, 
@@ -25,7 +26,8 @@ app_server <- function( input, output, session ) {
                                  date = input$date, 
                                  track_points_sf = list_sf_r$track_points_sf(),
                                  tracks_sf = list_sf_r$tracks_sf(), 
-                                 map_style = input$map_style)
+                                 map_style = input$map_style,
+                                 api_key = golem::get_golem_options("api_key"))
   
   mod_download_miniature_server(id = "download_miniature_ui_1", 
                                 track_points_sf = list_sf_r$track_points_sf(),

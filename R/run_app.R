@@ -8,6 +8,7 @@
 #' @importFrom shiny shinyApp
 #' @importFrom golem with_golem_options 
 run_app <- function(
+  api_key = "",
   onStart = NULL,
   options = list(), 
   enableBookmarking = NULL,
@@ -23,6 +24,6 @@ run_app <- function(
       enableBookmarking = enableBookmarking, 
       uiPattern = uiPattern
     ), 
-    golem_opts = list(...)
+    golem_opts = list(api_key = api_key)
   )
 }
