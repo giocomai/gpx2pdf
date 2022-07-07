@@ -33,6 +33,7 @@ app_server <- function( input, output, session ) {
                                 track_points_sf = list_sf_r$track_points_sf(),
                                 tracks_sf = list_sf_r$tracks_sf())
   
-  
+  mod_download_qr_server(id = "download_qr_ui_1", 
+                         url = input$url)
   
 }

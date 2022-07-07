@@ -36,7 +36,8 @@ app_ui <- function(request) {
                                    "Thunderforest_outdoor_API")),
       mod_download_report_ui("download_report_ui_1"),
       mod_download_report_odt_ui("download_report_odt_ui_1"),
-      mod_download_miniature_ui("download_miniature_ui_1")
+      mod_download_miniature_ui("download_miniature_ui_1"),
+      mod_download_qr_ui("download_qr_ui_1")
     )
   )
 }
